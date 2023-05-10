@@ -167,6 +167,22 @@ func main() {
 		return nil
 	})
 
+	//body2
+	app.Post("/body2", func(c *fiber.Ctx) error {
+		fmt.Printf("Isjson = %v", c.Is("json"))
+		// fmt.Println(string(c.Body()))
+
+		data := map[string]interface{}{}
+		err :=	c.BodyParser(&data)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(data)
+		
+		return nil
+	})
+
 
 	app.Mount("/user", userApp)
 
