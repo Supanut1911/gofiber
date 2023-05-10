@@ -52,6 +52,12 @@ func main() {
 			return c.JSON(person)
 		})
 
+		//wildCards
+		app.Get("/wildcards/*", func(c *fiber.Ctx) error {
+			wildcard := c.Params("*")
+			return c.SendString(wildcard)
+		})
+
 	app.Listen(":8888")
 }
 
