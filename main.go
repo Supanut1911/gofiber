@@ -1,19 +1,19 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	app := mux.NewRouter()
+	app := fiber.New()
 	
-	app.HandleFunc("/hello/{id}", func(w http.ResponseWriter, r *http.Request) {
-		id := mux.Vars(r)["id"]
-		fmt.Println(r.Method, id)
-	}).Methods(http.MethodGet)
+	app.Get("/hello",func(c *fiber.Ctx) error {
+		return nil
+	}) 
 
-	http.ListenAndServe(":8888", app)
+	app.Listen(":8888")
+}
+
+func Hello(c *fiber.Ctx) error{
+	return nil
 }
