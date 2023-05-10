@@ -154,7 +154,16 @@ func main() {
 	//body
 	app.Post("/body", func(c *fiber.Ctx) error {
 		fmt.Printf("Isjson = %v", c.Is("json"))
-		fmt.Println(string(c.Body()))
+		// fmt.Println(string(c.Body()))
+
+		person := Person{}
+		err :=	c.BodyParser(&person)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(person)
+		
 		return nil
 	})
 
