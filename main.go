@@ -9,6 +9,16 @@ import (
 
 func main() {
 	app := fiber.New()
+
+	//middleware
+	app.Use(func(c *fiber.Ctx) error {
+		fmt.Println("before")
+
+		c.Next()
+		
+		fmt.Println("after")
+		return nil
+	})
 	
 	app.Get("/hello",func(c *fiber.Ctx) error {
 		return c.SendString("GET: hello world")
@@ -71,6 +81,8 @@ func main() {
 	app.Get("/error", func(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "content not found")
 	})
+
+	
 
 	app.Listen(":8888")
 }
