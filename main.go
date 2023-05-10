@@ -39,10 +39,27 @@ func main() {
 		return c.SendString(fmt.Sprintf("Id = %v", id))
 	})
 
+		//query
+		app.Get("/query", func(c *fiber.Ctx) error {
+			name :=c.Query("name")
+			return c.SendString("name: " + name)
+		})
+	
+		//query praser
+		app.Get("/query2", func(c *fiber.Ctx) error {
+			person := Person{}
+			c.QueryParser(&person)
+			return c.JSON(person)
+		})
 
 	app.Listen(":8888")
 }
 
 func Hello(c *fiber.Ctx) error{
 	return nil
+}
+
+type Person struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
 }
