@@ -138,6 +138,20 @@ func main() {
 		return c.SendString("server")
 	})
 
+	//environment
+	app.Get("/env", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"baseURL": c.BaseURL(),
+			"Hostname": c.Hostname(),
+			"IP": c.IP(),
+			"IPs": c.IPs(),
+			"OriginalURL": c.OriginalURL(),
+			"Path": c.Path(),
+			"Protocol": c.Protocol(),
+			"subdomain": c.Subdomains(),
+		})
+	})
+
 	app.Mount("/user", userApp)
 
 	app.Listen(":8888")
