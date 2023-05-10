@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -39,23 +40,30 @@ func main() {
 		return c.SendString(fmt.Sprintf("Id = %v", id))
 	})
 
-		//query
-		app.Get("/query", func(c *fiber.Ctx) error {
-			name :=c.Query("name")
-			return c.SendString("name: " + name)
-		})
-	
-		//query praser
-		app.Get("/query2", func(c *fiber.Ctx) error {
-			person := Person{}
-			c.QueryParser(&person)
-			return c.JSON(person)
-		})
+	//query
+	app.Get("/query", func(c *fiber.Ctx) error {
+		name :=c.Query("name")
+		return c.SendString("name: " + name)
+	})
 
-		//wildCards
-		app.Get("/wildcards/*", func(c *fiber.Ctx) error {
-			wildcard := c.Params("*")
-			return c.SendString(wildcard)
+	//query praser
+	app.Get("/query2", func(c *fiber.Ctx) error {
+		person := Person{}
+		c.QueryParser(&person)
+		return c.JSON(person)
+	})
+
+	//wildCards
+	app.Get("/wildcards/*", func(c *fiber.Ctx) error {
+		wildcard := c.Params("*")
+		return c.SendString(wildcard)
+	})
+
+	//static file
+	app.Static("/", "./wwwroot", 
+		fiber.Static{
+			Index: "index.html",
+			CacheDuration: time.Second * 10,
 		})
 
 	app.Listen(":8888")
