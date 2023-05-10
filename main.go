@@ -65,6 +65,12 @@ func main() {
 			Index: "index.html",
 			CacheDuration: time.Second * 10,
 		})
+		
+
+	//New Error
+	app.Get("/error", func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusNotFound, "content not found")
+	})
 
 	app.Listen(":8888")
 }
