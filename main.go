@@ -5,6 +5,9 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 )
 
 func main() {
@@ -12,15 +15,32 @@ func main() {
 
 	//middleware
 	app.Use(func(c *fiber.Ctx) error {
+		c.Locals("name", "NUTX")
 		fmt.Println("before")
 
-		c.Next()
+		err := c.Next()
 		
 		fmt.Println("after")
-		return nil
+		return err
 	})
+
+	//middleware2
+	app.Use(requestid.New())
+
+	//middleware3
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowMethods: "*",
+		AllowHeaders: "*",
+	}))
+
+	app.Use(logger.New(logger.Config{
+		TimeZone: "Asia/Bangkok",
+	}))
 	
 	app.Get("/hello",func(c *fiber.Ctx) error {
+		name := c.Locals("name")
+		fmt.Println("log name: ", name)
 		return c.SendString("GET: hello world")
 	}) 
 
