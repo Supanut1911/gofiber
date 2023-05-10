@@ -6,7 +6,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 )
 
@@ -55,9 +54,9 @@ func main() {
 		AllowHeaders: "*",
 	}))
 
-	app.Use(logger.New(logger.Config{
-		TimeZone: "Asia/Bangkok",
-	}))
+	// app.Use(logger.New(logger.Config{
+	// 	TimeZone: "Asia/Bangkok",
+	// }))
 	
 	app.Get("/hello",func(c *fiber.Ctx) error {
 		name := c.Locals("name")
@@ -151,6 +150,14 @@ func main() {
 			"subdomain": c.Subdomains(),
 		})
 	})
+
+	//body
+	app.Post("/body", func(c *fiber.Ctx) error {
+		fmt.Printf("Isjson = %v", c.Is("json"))
+		fmt.Println(string(c.Body()))
+		return nil
+	})
+
 
 	app.Mount("/user", userApp)
 
