@@ -130,6 +130,13 @@ func main() {
 	userApp.Get("/login", func(c *fiber.Ctx) error {
 		return c.SendString("Login")
 	})
+	
+	//server
+	app.Server().MaxConnsPerIP = 1
+	app.Get("/server", func(c *fiber.Ctx) error {
+		time.Sleep(time.Second * 30)
+		return c.SendString("server")
+	})
 
 	app.Mount("/user", userApp)
 
