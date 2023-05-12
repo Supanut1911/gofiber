@@ -4,12 +4,84 @@ import (
 	"fmt"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"github.com/jmoiron/sqlx"
+	"golang.org/x/crypto/bcrypt"
 )
 
+var db *sqlx.DB
+
 func main() {
+
+	var err error
+	db, err = sqlx.Open("mysql", "root:P@ssw0rd@tcp(13.76.163.73:3306)/techcoach")
+	if err != nil {
+		panic(err)
+	}
+	app := fiber.New()
+	
+	app.Post("/signup", Signup)
+
+	app.Post("/login", Login)
+
+	app.Get("/hello", Hello)
+
+
+	app.Listen(":8000")
+}
+
+func Signup (c *fiber.Ctx) error {
+	request := SignupRequesst{}
+	err := c.BodyParser(&request)
+	if err != nil {
+		return err
+	}
+
+	if request.Username == "" || request.Password == "" {
+		return fiber.ErrUnprocessableEntity
+	}
+
+	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
+	if err != nil {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
+	}
+
+
+
+	query := "insert user (username, password) value (?, ?)"
+	result, err := db.Exec(query, request.Username, string(password))
+	if err != nil{
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil{
+		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
+	}
+
+	user := User {
+		Id: int(id),
+		Username: request.Username,
+		Password: string(password),
+	}
+	
+	return c.Status(fiber.StatusCreated).JSON(user)
+}
+
+func Login (c *fiber.Ctx) error {
+	return nil
+}
+
+
+func Hello (c *fiber.Ctx) error {
+	return nil
+}
+
+
+func Fiber() {
 	app := fiber.New(fiber.Config{
 		Prefork: true,
 	})
@@ -189,11 +261,22 @@ func main() {
 	app.Listen(":8888")
 }
 
-func Hello(c *fiber.Ctx) error{
-	return nil
-}
+// func Hello(c *fiber.Ctx) error{
+// 	return nil
+// }
 
 type Person struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
+}
+
+type User struct {
+	Id int `db:"id" json:"id"`
+	Username string `db:"username json:"username""`
+	Password string `db:"password json:"password"`
+}
+
+type SignupRequesst struct {
+	Username string `json: "username"`
+	Password string `json: "password"`
 }
