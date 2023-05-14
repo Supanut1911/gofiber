@@ -77,7 +77,36 @@ func Signup (c *fiber.Ctx) error {
 }
 
 func Login (c *fiber.Ctx) error {
-	return nil
+
+	//ดึง body
+	request := LoginRequest{}
+	//validate
+
+	err := c.BodyParser(&request)
+	if err != nil {
+		return err
+	}
+	if request.Username == "" || request.Password == "" {
+		return fiber.ErrUnprocessableEntity
+	}
+
+	//query
+	user := User{}
+	// query := "select * from users where username=$1"
+	err = db.Get(&user, "select * from users")
+
+	if err != nil{
+		fmt.Printf("%#v", err)
+		return fiber.NewError(fiber.StatusNotFound, "Incorrect username or password")
+	} 
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password))
+	if err != nil{
+		fmt.Printf("%#v", err)
+		return fiber.NewError(fiber.StatusNotFound, "Incorrect username or password")
+	} 
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 
@@ -276,12 +305,17 @@ type Person struct {
 }
 
 type User struct {
-	Id int `db:"id" json:"id"`
-	Username string `db:"username json:"username""`
-	Password string `db:"password json:"password"`
+	ID       int    `db:"id" json:"id"`
+  Username string `db:"username" json:"username"`
+  Password string `db:"password" json:"password"`	
 }
 
 type SignupRequesst struct {
-	Username string `json: "username"`
-	Password string `json: "password"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
