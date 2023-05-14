@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	jwtWare "github.com/gofiber/jwt/v3"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
@@ -29,6 +30,17 @@ func main() {
 	}
 	app := fiber.New()
 	
+	app.Use("/hello", jwtWare.New(jwtWare.Config{
+		SigningMethod: "HS256",
+		SigningKey: []byte(jwtSecret),
+		SuccessHandler: func(c *fiber.Ctx) error {
+			return c.Next()
+		},
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			return fiber.ErrUnauthorized
+		},
+	}))
+
 	app.Post("/signup", Signup)
 
 	app.Post("/login", Login)
