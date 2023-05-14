@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,7 +18,9 @@ var db *sqlx.DB
 func main() {
 
 	var err error
-	db, err = sqlx.Open("mysql", "root:P@ssw0rd@tcp(13.76.163.73:3306)/techcoach")
+	var dataSoruce = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s", "localhost", 5432, "postgres", "postgres", "godb", "disable")
+
+	db, err = sqlx.Open("postgres", dataSoruce)
 	if err != nil {
 		panic(err)
 	}
@@ -44,15 +47,16 @@ func Signup (c *fiber.Ctx) error {
 		return fiber.ErrUnprocessableEntity
 	}
 
+	
 	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
+	
 
-
-
-	query := "insert user (username, password) value (?, ?)"
-	result, err := db.Exec(query, request.Username, string(password))
+	query := `INSERT INTO users (username, password) VALUES('rocket', 'xl') RETURNING id`
+	result, err := db.Exec(query)
+	//, request.Username, string(password)
 	if err != nil{
 		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
