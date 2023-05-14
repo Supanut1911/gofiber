@@ -54,9 +54,8 @@ func Signup (c *fiber.Ctx) error {
 	}
 	
 
-	query := `INSERT INTO users (username, password) VALUES('rocket', 'xl') RETURNING id`
-	result, err := db.Exec(query)
-	//, request.Username, string(password)
+	query := `INSERT INTO users (username, password) VALUES($1, $2) RETURNING id`
+	result, err := db.Exec(query, request.Username, string(password))
 	if err != nil{
 		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
