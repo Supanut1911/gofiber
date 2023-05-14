@@ -60,13 +60,15 @@ func Signup (c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil{
-		return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
-	}
+	_ = result
+
+	// id, err := result.LastInsertId()
+	// if err != nil{
+	// 	return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
+	// }
 
 	user := User {
-		Id: int(id),
+		// Id: int(id),
 		Username: request.Username,
 		Password: string(password),
 	}
