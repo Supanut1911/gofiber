@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dgrijalva/jwt-go/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -14,6 +15,8 @@ import (
 )
 
 var db *sqlx.DB
+
+const jwtSecret = "YOYO1911"
 
 func main() {
 
@@ -92,8 +95,8 @@ func Login (c *fiber.Ctx) error {
 
 	//query
 	user := User{}
-	// query := "select * from users where username=$1"
-	err = db.Get(&user, "select * from users")
+	query := "select * from users where username=$1"
+	err = db.Get(&user, query, request.Username)
 
 	if err != nil{
 		fmt.Printf("%#v", err)
@@ -106,12 +109,29 @@ func Login (c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Incorrect username or password")
 	} 
 
-	return c.SendStatus(fiber.StatusOK)
+	//jwtClaim
+	claims := jwt.StandardClaims{
+		// Issuer: strconv.Itoa(user.ID),
+		Issuer: user.Username,
+		// ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+		// ExpiresAt: expirationTime,
+	}
+
+	//jwtToken
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := jwtToken.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return fiber.ErrUnauthorized
+	}
+
+	return c.JSON(fiber.Map{
+		"jwtToken": token,
+	})
 }
 
 
 func Hello (c *fiber.Ctx) error {
-	return nil
+	return c.SendString("this data from protected")
 }
 
 
